@@ -96,7 +96,7 @@ function MessageInputInner(
 
   // Public API
   const focus = () => {
-    if (typeof msgRef.current !== "undefined") {
+    if (msgRef.current) {
       msgRef.current.focus();
     }
   };
@@ -122,12 +122,16 @@ function MessageInputInner(
 
   const getContent = () => {
     // Direct reference to contenteditable div
-    const contentEditableRef = msgRef.current.msgRef.current;
-    return [
-      contentEditableRef.textContent,
-      contentEditableRef.innerText,
-      contentEditableRef.cloneNode(true).childNodes,
-    ];
+    if (msgRef.current && msgRef.current.msgRef && msgRef.current.msgRef.current) {
+      const contentEditableRef = msgRef.current.msgRef.current;
+      return [
+        contentEditableRef.textContent,
+        contentEditableRef.innerText,
+        contentEditableRef.cloneNode(true).childNodes,
+      ];
+    }
+
+    return ["", "", []];
   };
 
   const send = () => {
