@@ -32,10 +32,6 @@ function SearchInner(
 
   const [searchValue, setSearchValue] = useControlledOrNot("", value);
 
-  const [clearActive, setClearActive] = useState(
-    isControlled ? searchValue.length > 0 : false
-  );
-
   if (isControlled !== (typeof value !== "undefined")) {
     throw "Search: Changing from controlled to uncontrolled component and vice versa is not allowed";
   }
@@ -71,6 +67,7 @@ function SearchInner(
     setClearActive(false);
 
     onClearClick();
+    onChange("");
   };
 
   return (
