@@ -2,6 +2,7 @@ import type {ReactElement} from "react";
 import type {ChatComponentPropsRef} from "../../types";
 
 export interface SearchProps {
+  id?:string;
   placeholder?:string;
   value?:string;
   onChange?:(value:string) => void;
