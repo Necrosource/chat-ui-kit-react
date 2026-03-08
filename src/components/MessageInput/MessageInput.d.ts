@@ -1,4 +1,4 @@
-import type {MouseEvent, ReactElement} from "react";
+import type {MouseEvent, ReactElement, ClipboardEvent} from "react";
 import type {ChatComponentPropsRef} from "../../types";
 
 export interface MessageInputProps {
@@ -12,6 +12,7 @@ export interface MessageInputProps {
   autoFocus?: boolean;
   onChange?: (innerHtml: string, textContent: string, innerText: string, nodes: NodeList) => void;
   onSend?: (innerHtml: string, textContent: string, innerText: string, nodes: NodeList) => void;
+  onPaste?: (evt: ClipboardEvent<HTMLDivElement>) => void;
   sendButton?: boolean;
   attachButton?: boolean;
   attachDisabled?: boolean;
