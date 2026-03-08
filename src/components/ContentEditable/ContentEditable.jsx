@@ -61,13 +61,13 @@ export class ContentEditable extends Component {
 
   // Public API
   focus() {
-    if (typeof this.msgRef.current !== "undefined") {
+    if (this.msgRef.current) {
       this.msgRef.current.focus();
     }
   }
 
   componentDidMount() {
-    if (this.props.autoFocus === true) {
+    if (this.props.autoFocus === true && this.msgRef.current) {
       this.msgRef.current.focus();
     }
   }
@@ -103,8 +103,6 @@ export class ContentEditable extends Component {
     if (value !== msgRef.current.innerHTML) {
       msgRef.current.innerHTML = typeof value === "string" ? value : "";
     }
-
-    replaceCaret(msgRef.current, activateAfterChange);
   }
 
   render() {
