@@ -59,6 +59,22 @@ export class ContentEditable extends Component {
     onChange?.(target.innerHTML, target.textContent, target.innerText);
   };
 
+  handlePaste = (evt) => {
+    const {
+      props: { onPaste },
+    } = this;
+
+    onPaste?.(evt);
+
+    if (evt.defaultPrevented) {
+      return;
+    }
+
+    evt.preventDefault();
+    const text = evt.clipboardData.getData("text/plain");
+    document.execCommand("insertText", false, text);
+  };
+
   // Public API
   focus() {
     if (this.msgRef.current) {
@@ -110,6 +126,7 @@ export class ContentEditable extends Component {
         msgRef,
         handleInput,
         handleKeyPress,
+        handlePaste,
         innerHTML,
         props: { placeholder, disabled, className },
       } = this,
@@ -124,6 +141,7 @@ export class ContentEditable extends Component {
         data-placeholder={ph}
         onInput={handleInput}
         onKeyPress={handleKeyPress}
+        onPaste={handlePaste}
         dangerouslySetInnerHTML={innerHTML()}
       ></div>
     );
@@ -160,6 +178,12 @@ ContentEditable.propTypes = {
    * @param {String} value
    */
   onKeyPress: PropTypes.func,
+
+  /**
+   * onPaste handler<br>
+   * @param {Object} event
+   */
+  onPaste: PropTypes.func,
 
   /** Additional classes. */
   className: PropTypes.string,
