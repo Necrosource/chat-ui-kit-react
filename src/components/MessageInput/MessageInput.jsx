@@ -70,6 +70,7 @@ function MessageInputInner(
     value = undefined,
     onSend = noop,
     onChange = noop,
+    onPaste = noop,
     autoFocus = false,
     placeholder = "",
     fancyScroll = true,
@@ -198,7 +199,6 @@ function MessageInputInner(
           />
         </div>
       )}
-
       <div className={`${cName}__content-editor-wrapper`}>
         <EditorContainer
           fancyScroll={fancyScroll}
@@ -212,6 +212,7 @@ function MessageInputInner(
             placeholder={ph}
             onKeyPress={handleKeyPress}
             onChange={handleChange}
+            onPaste={onPaste}
             activateAfterChange={activateAfterChange}
             value={stateValue}
           />
@@ -272,6 +273,12 @@ MessageInput.propTypes = {
    * @param {NodeList} nodes
    */
   onChange: PropTypes.func,
+
+  /**
+   * onPaste handler<br>
+   * @param {Object} event
+   */
+  onPaste: PropTypes.func,
 
   /**
    * onSend handler<br>
