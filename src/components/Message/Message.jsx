@@ -16,6 +16,7 @@ import MessageTextContent from "./MessageTextContent";
  */
 export const Message = ({
   model: {
+    id,
     message = "",
     sentTime = "",
     sender = "",
@@ -164,6 +165,9 @@ export const Message = ({
         className
       )}
       {...{ [`data-${prefix}-message`]: "" }}
+      {...(id !== undefined && id !== null
+        ? { [`data-${prefix}-message-id`]: id }
+        : {})}
     >
       {typeof avatar !== "undefined" && (
         <div className={`${cName}__avatar`}>{avatar}</div>
@@ -180,6 +184,7 @@ export const Message = ({
 Message.propTypes = {
   /**
    * Model object
+   * **id**: string | number - Message id
    * **message**: string - Message to send
    * **sentTime**: string - Message sent time
    * **sender**: string - Sender name
@@ -188,6 +193,9 @@ Message.propTypes = {
    * **type**: "html" | "text" | "image" | "custom"
    */
   model: PropTypes.shape({
+    /** Message id. */
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+
     /** Chat message to display - content. */
     message: PropTypes.string,
     sentTime: PropTypes.string,
