@@ -23,7 +23,7 @@ const useControlledOrNot = (initialValue, value) => {
 };
 
 function SearchInner(
-  { placeholder = "", value = undefined, onChange = () => {}, onClearClick = () => {}, className, disabled = false, ...rest },
+  { id, placeholder = "", value = undefined, onChange = () => {}, onClearClick = () => {}, className, disabled = false, ...rest },
   ref
 ) {
   const cName = `${prefix}-search`;
