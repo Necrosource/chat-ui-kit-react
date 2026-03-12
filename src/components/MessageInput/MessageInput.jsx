@@ -190,16 +190,30 @@ function MessageInputInner(
         { [`${cName}--disabled`]: disabled },
         className
       )}
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "stretch",
+        ...rest.style,
+      }}
     >
       {attachButton === true && (
-        <div className={`${cName}__tools`}>
+        <div className={`${cName}__tools`} style={{ display: "flex" }}>
           <AttachmentButton
             onClick={onAttachClick}
             disabled={disabled === true || attachDisabled === true}
+            style={{
+              marginRight: "0.5em",
+              flexShrink: 0,
+              flexGrow: 0,
+            }}
           />
         </div>
       )}
-      <div className={`${cName}__content-editor-wrapper`}>
+      <div
+        className={`${cName}__content-editor-wrapper`}
+        style={{ flexGrow: 1 }}
+      >
         <EditorContainer
           fancyScroll={fancyScroll}
           ref={scrollRef}
@@ -219,10 +233,15 @@ function MessageInputInner(
         </EditorContainer>
       </div>
       {sendButton === true && (
-        <div className={`${cName}__tools`}>
+        <div className={`${cName}__tools`} style={{ display: "flex" }}>
           <SendButton
             onClick={send}
             disabled={disabled === true || stateSendDisabled === true}
+            style={{
+              marginLeft: "0.5em",
+              flexShrink: 0,
+              flexGrow: 0,
+            }}
           />
         </div>
       )}

@@ -13,6 +13,7 @@ export const AttachmentButton = ({ className = "", children, ...rest }) => {
     <Button
       {...rest}
       className={classNames(cName, className)}
+      style={{ paddingLeft: "0.2em", paddingRight: "0.2em", ...rest.style }}
       icon={<FontAwesomeIcon icon={faPaperclip} />}
     >
       {children}
