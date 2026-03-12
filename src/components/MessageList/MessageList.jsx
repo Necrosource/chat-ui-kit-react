@@ -24,6 +24,7 @@ class MessageListInner extends React.Component {
     this.scrollTicking = false;
     this.resizeTicking = false;
     this.noScroll = undefined;
+    this.lastScrollTargetId = undefined;
   }
 
   getSnapshotBeforeUpdate() {
@@ -108,10 +109,51 @@ class MessageListInner extends React.Component {
     }
   };
 
+  scrollToMessage = (id) => {
+    // Escape double quotes in ID to prevent querySelector syntax errors
+    const safeId = String(id).replace(/"/g, '\\"');
+    const element = this.containerRef.current.querySelector(
+      `[data-${prefix}-message-id="${safeId}"]`
+    );
+
+    if (element) {
+      const list = this.containerRef.current;
+      const parentRect = list.getBoundingClientRect();
+      const childRect = element.getBoundingClientRect();
+
+      // Calculate absolute top position of the element within the scrollable container
+      const elementTop = childRect.top + list.scrollTop - parentRect.top;
+
+      // Calculate offset to center the element
+      const centerOffset =
+        elementTop - list.clientHeight / 2 + childRect.height / 2;
+
+      if (list.scrollTo) {
+        list.scrollTo({
+          top: centerOffset,
+          behavior: this.props.scrollBehavior || "auto",
+        });
+      } else {
+        list.scrollTop = centerOffset;
+      }
+
+      this.lastScrollTargetId = id;
+      return true;
+    }
+    return false;
+  };
+
   componentDidMount() {
     // Set scrollbar to bottom on start (getSnaphotBeforeUpdate is not invoked on mount)
     if (this.props.autoScrollToBottomOnMount === true) {
       this.scrollToEnd(this.props.scrollBehavior);
+    }
+
+    if (
+      this.props.scrollTargetId !== undefined &&
+      this.props.scrollTargetId !== null
+    ) {
+      this.scrollToMessage(this.props.scrollTargetId);
     }
 
     this.lastClientHeight = this.containerRef.current.clientHeight;
@@ -127,8 +169,22 @@ class MessageListInner extends React.Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const {
-      props: { autoScrollToBottom },
+      props: { autoScrollToBottom, scrollTargetId },
     } = this;
+
+    if (scrollTargetId !== undefined && scrollTargetId !== null) {
+      if (
+        scrollTargetId !== prevProps.scrollTargetId ||
+        scrollTargetId !== this.lastScrollTargetId
+      ) {
+        if (this.scrollToMessage(scrollTargetId)) {
+          if (typeof snapshot !== "undefined") {
+            this.lastClientHeight = snapshot.clientHeight;
+          }
+          return;
+        }
+      }
+    }
 
     if (typeof snapshot !== "undefined") {
       const list = this.containerRef.current;
@@ -258,6 +314,7 @@ class MessageListInner extends React.Component {
         scrollBehavior, // Just to remove rest
         autoScrollToBottom, // Just to remove rest
         autoScrollToBottomOnMount, // Just to remove rest
+        scrollTargetId, // Just to remove rest
         ...rest
       },
     } = this;
@@ -396,24 +453,13 @@ MessageList.propTypes = {
    */
   scrollBehavior: PropTypes.oneOf(["auto", "smooth"]),
 
+  /**
+   * Message ID to scroll to
+   */
+  scrollTargetId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+
   /** Additional classes. */
   className: PropTypes.string,
 };
-
-MessageList.defaultProps = {
-  typingIndicator: undefined,
-  loading: false,
-  loadingMore: false,
-  loadingMorePosition: "top",
-  disableOnYReachWhenNoScroll: false,
-  autoScrollToBottom: true,
-  autoScrollToBottomOnMount: true,
-  scrollBehavior: "auto",
-};
-
-MessageListInner.propTypes = MessageList.propTypes;
-MessageListInner.defaultProps = MessageList.defaultProps;
-
-MessageList.Content = MessageListContent;
 
 export default MessageList;
