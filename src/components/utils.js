@@ -23,35 +23,41 @@ export const getChildren = (children, types) => {
   const ret = [];
   const strTypes = types.map((t) => t.displayName || t.name);
 
-  React.Children.toArray(children).forEach((item) => {
-    const idx = types.indexOf(item.type);
-    if (idx !== -1) {
-      ret[idx] = item;
+  const processChild = (item) => {
+    if (item.type === React.Fragment) {
+      React.Children.toArray(item.props.children).forEach(processChild);
     } else {
-      const is = item?.props?.as ?? item?.props?.is;
-      const typeofIs = typeof is;
-      if (typeofIs === "function") {
-        // Type
-        const fIdx = types.indexOf(is);
-        if (fIdx !== -1) {
-          ret[fIdx] = React.cloneElement(item, { ...item.props, as: null }); // Cloning to remove "as" attribute, which is not desirable
-        }
-      } else if (typeofIs === "object") {
-        // forward ref
+      const idx = types.indexOf(item.type);
+      if (idx !== -1) {
+        ret[idx] = item;
+      } else {
+        const is = item?.props?.as ?? item?.props?.is;
+        const typeofIs = typeof is;
+        if (typeofIs === "function") {
+          // Type
+          const fIdx = types.indexOf(is);
+          if (fIdx !== -1) {
+            ret[fIdx] = React.cloneElement(item, { ...item.props, as: null }); // Cloning to remove "as" attribute, which is not desirable
+          }
+        } else if (typeofIs === "object") {
+          // forward ref
 
-        const typeName = is.name || is.displayName;
-        const tIdx = strTypes.indexOf(typeName);
-        if (tIdx !== -1) {
-          ret[tIdx] = React.cloneElement(item, { ...item.props, as: null }); // Cloning to remove "as" attribute, which is not desirable
-        }
-      } else if (typeofIs === "string") {
-        const sIdx = strTypes.indexOf(is);
-        if (sIdx !== -1) {
-          ret[sIdx] = item;
+          const typeName = is.name || is.displayName;
+          const tIdx = strTypes.indexOf(typeName);
+          if (tIdx !== -1) {
+            ret[tIdx] = React.cloneElement(item, { ...item.props, as: null }); // Cloning to remove "as" attribute, which is not desirable
+          }
+        } else if (typeofIs === "string") {
+          const sIdx = strTypes.indexOf(is);
+          if (sIdx !== -1) {
+            ret[sIdx] = item;
+          }
         }
       }
     }
-  });
+  };
+
+  React.Children.toArray(children).forEach(processChild);
 
   return ret;
 };
@@ -99,14 +105,14 @@ export const allowedChildren = (allowedTypes) => (
     (t) => t.name || t.displayName
   );
 
-  // Function as Child is not supported by React.Children... functions
-  // and can be antipattern: https://americanexpress.io/faccs-are-an-antipattern/
-  // But we don't check fd function is passed as children and its intentional
-  // Passing function as children has no effect in chat-ui-kit
-  const forbidden = React.Children.toArray(props[propName]).find((item) => {
+  const isForbidden = (item) => {
     if (typeof item === "string" && item.trim().length === 0) {
       // Ignore string
       return false;
+    }
+
+    if (item.type === React.Fragment) {
+      return React.Children.toArray(item.props.children).find(isForbidden);
     }
 
     if (allowedTypes.indexOf(item.type) === -1) {
@@ -128,8 +134,14 @@ export const allowedChildren = (allowedTypes) => (
       }
     }
 
-    return undefined;
-  });
+    return false;
+  };
+
+  // Function as Child is not supported by React.Children... functions
+  // and can be antipattern: https://americanexpress.io/faccs-are-an-antipattern/
+  // But we don't check fd function is passed as children and its intentional
+  // Passing function as children has no effect in chat-ui-kit
+  const forbidden = React.Children.toArray(props[propName]).find(isForbidden);
 
   if (typeof forbidden !== "undefined") {
     const typeName = getComponentName(forbidden);
