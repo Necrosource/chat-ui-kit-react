@@ -2,6 +2,7 @@ import React, {
   useState,
   useRef,
   useMemo,
+  useEffect,
   useImperativeHandle,
   forwardRef,
 } from "react";
@@ -36,6 +37,13 @@ function SearchInner(
     isControlled ? searchValue.length > 0 : false
   );
 
+  // In controlled mode, keep clearActive in sync whenever the value prop changes.
+  useEffect(() => {
+    if (isControlled) {
+      setClearActive(value.length > 0);
+    }
+  }, [value]);
+
   if (isControlled !== (typeof value !== "undefined")) {
     throw "Search: Changing from controlled to uncontrolled component and vice versa is not allowed";
   }
@@ -66,6 +74,9 @@ function SearchInner(
   const handleClearClick = () => {
     if (isControlled === false) {
       setSearchValue("");
+    } else {
+      // Notify the parent so it can reset its controlled value.
+      onChange("");
     }
 
     setClearActive(false);
